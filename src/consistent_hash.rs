@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use std::collections::BTreeMap;
 use crypto::md5::Md5;
 use crypto::digest::Digest;
@@ -7,14 +6,14 @@ use std::collections::hash_map::DefaultHasher;
 
 pub struct ConsistentHash<T: Hash> {
     virtuals: isize,
-    ring: BTreeMap<String, T>
+    ring: BTreeMap<String, T>,
 }
 
-impl<T: Hash+Clone+Debug> ConsistentHash<T> {
-	pub fn new(nodes: Vec<T>, virtuals: isize) -> ConsistentHash<T> {
+impl<T: Hash + Clone> ConsistentHash<T> {
+    pub fn new(nodes: Vec<T>, virtuals: isize) -> ConsistentHash<T> {
         let mut new_consistent_hash = ConsistentHash {
             virtuals: virtuals,
-            ring: BTreeMap::new()
+            ring: BTreeMap::new(),
         };
 
         for node in nodes {
@@ -54,7 +53,7 @@ impl<T: Hash+Clone+Debug> ConsistentHash<T> {
         for k in sorted_keys {
             if k >= &key {
                 return self.ring.get(k);
-            } 
+            }
         }
 
         self.ring.get(&head_key)
@@ -75,38 +74,86 @@ fn gen_key(key: String) -> String {
 
 #[cfg(test)]
 mod test {
-	use consistent_hash::ConsistentHash;
+    use consistent_hash::ConsistentHash;
 
-	#[test]
-	fn test_empty() {
-		let mut consistent_hash: ConsistentHash<String> = ConsistentHash::new(vec![], 10);
-		assert_eq!(None, consistent_hash.get("foo".to_string()));
-	}
+    #[test]
+    fn test_empty() {
+        let mut consistent_hash: ConsistentHash<String> = ConsistentHash::new(vec![], 10);
+        assert_eq!(None, consistent_hash.get("foo".to_string()));
+    }
 
-	#[test]
+    #[test]
     fn test_full() {
-    	let mut consistent_hash: ConsistentHash<String> = ConsistentHash::new(vec!["foo".to_string(), "bar".to_string(), "baz".to_string()], 10);
+        let mut consistent_hash: ConsistentHash<String> = ConsistentHash::new(
+            vec!["foo".to_string(), "bar".to_string(), "baz".to_string()],
+            10,
+        );
 
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("1").map(|x| x.to_string()));
-        assert_eq!(Some("baz".to_string()), consistent_hash.get("2").map(|x| x.to_string()));
-        assert_eq!(Some("baz".to_string()), consistent_hash.get("3").map(|x| x.to_string()));
-        assert_eq!(Some("bar".to_string()), consistent_hash.get("4").map(|x| x.to_string()));
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("5").map(|x| x.to_string()));
-        assert_eq!(Some("bar".to_string()), consistent_hash.get("6").map(|x| x.to_string()));
-        assert_eq!(Some("bar".to_string()), consistent_hash.get("7").map(|x| x.to_string()));
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("8").map(|x| x.to_string()));
-        assert_eq!(Some("baz".to_string()), consistent_hash.get("9").map(|x| x.to_string()));
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("1").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("baz".to_string()),
+            consistent_hash.get("2").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("baz".to_string()),
+            consistent_hash.get("3").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("bar".to_string()),
+            consistent_hash.get("4").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("5").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("bar".to_string()),
+            consistent_hash.get("6").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("bar".to_string()),
+            consistent_hash.get("7").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("8").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("baz".to_string()),
+            consistent_hash.get("9").map(|x| x.to_string())
+        );
 
         consistent_hash.remove("foo".to_string());
 
-        assert_eq!(Some("bar".to_string()), consistent_hash.get("1").map(|x| x.to_string()));
-        assert_eq!(Some("bar".to_string()), consistent_hash.get("5").map(|x| x.to_string()));
-        assert_eq!(Some("baz".to_string()), consistent_hash.get("8").map(|x| x.to_string()));
+        assert_eq!(
+            Some("bar".to_string()),
+            consistent_hash.get("1").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("bar".to_string()),
+            consistent_hash.get("5").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("baz".to_string()),
+            consistent_hash.get("8").map(|x| x.to_string())
+        );
 
         consistent_hash.insert("foo".to_string());
 
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("1").map(|x| x.to_string()));
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("5").map(|x| x.to_string()));
-        assert_eq!(Some("foo".to_string()), consistent_hash.get("8").map(|x| x.to_string()));
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("1").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("5").map(|x| x.to_string())
+        );
+        assert_eq!(
+            Some("foo".to_string()),
+            consistent_hash.get("8").map(|x| x.to_string())
+        );
     }
 }
